@@ -5,6 +5,7 @@ on:
     types: [branch]
   create:
     types: [branch]
+  workflow_dispatch:
 
 jobs:
   log_deletion:
