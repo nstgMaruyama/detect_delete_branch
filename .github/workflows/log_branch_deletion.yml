@@ -1,29 +1,47 @@
-name: Log Branch Deletion and Creation
+name: Log to Wiki
 
 on:
-  delete:      # types は指定できません
-  create:      # types は指定できません
+  delete:
+  create:
   workflow_dispatch:
 
-jobs:
-  log_deletion:
-    # 削除イベントの時、かつ削除されたのが「ブランチ」である場合のみ実行
-    if: github.event_name == 'delete' && github.event.ref_type == 'branch'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Log deleted branch name
-        run: |
-          echo "ブランチが削除されました。"
-          echo "削除されたブランチ名: ${{ github.event.ref }}"
-          echo "削除を実行したユーザー: ${{ github.actor }}"
+permissions:
+  contents: write
 
-  log_creation:
-    # 作成イベントの時、かつ作成されたのが「ブランチ」である場合のみ実行
-    if: github.event_name == 'create' && github.event.ref_type == 'branch'
+jobs:
+  update_wiki:
     runs-on: ubuntu-latest
     steps:
-      - name: Log created branch name
+      - name: Checkout Wiki
         run: |
-          echo "ブランチが作成されました。"
-          echo "作成されたブランチ名: ${{ github.event.ref }}"
-          echo "作成を実行したユーザー: ${{ github.actor }}"
+          # Wikiリポジトリを一時フォルダにクローン
+          # 認証には GITHUB_TOKEN を使用
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git wiki_repo
+
+      - name: Update Wiki Page
+        run: |
+          cd wiki_repo
+          LOG_FILE="Branch-Log.md"
+
+          # ファイルがなければ作成
+          if [ ! -f "$LOG_FILE" ]; then
+            echo "# 🌿 ブランチ操作履歴（Wiki版）" > "$LOG_FILE"
+            echo "| 日時 (JST) | ユーザー | アクション | 対象ブランチ |" >> "$LOG_FILE"
+            echo "| --- | --- | --- | --- |" >> "$LOG_FILE"
+          fi
+
+          # データの準備
+          TIMESTAMP=$(date -d "+9 hours" '+%Y-%m-%d %H:%M:%S JST')
+          ACTOR="${{ github.actor }}"
+          ACTION="${{ github.event_name == 'create' && '✨ 作成' || '🗑️ 削除' }}"
+          BRANCH="${{ github.event.ref }}"
+
+          # ログを追記
+          echo "| $TIMESTAMP | $ACTOR | $ACTION | \`$BRANCH\` |" >> "$LOG_FILE"
+
+          # Gitの設定とプッシュ
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add "$LOG_FILE"
+          git commit -m "Update branch activity log"
+          git push origin master || git push origin main
