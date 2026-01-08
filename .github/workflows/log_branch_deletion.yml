@@ -1,39 +1,29 @@
 name: Log Branch Deletion and Creation
 
 on:
-  delete:
-    types: [branch]
-  create:
-    types: [branch]
+  delete:      # types は指定できません
+  create:      # types は指定できません
   workflow_dispatch:
 
 jobs:
   log_deletion:
+    # 削除イベントの時、かつ削除されたのが「ブランチ」である場合のみ実行
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
-      - name: Debug GitHub Context (Deletion)
-        run: echo "${{ toJSON(github) }}"
       - name: Log deleted branch name
         run: |
           echo "ブランチが削除されました。"
-          echo "削除されたブランチ名: ${{ github.event.ref_name }}"
+          echo "削除されたブランチ名: ${{ github.event.ref }}"
           echo "削除を実行したユーザー: ${{ github.actor }}"
-          echo "イベントのペイロード全文:"
-          echo "${{ toJSON(github.event) }}"
-      - name: Debug GitHub Context (Trigger Check)
-        run: echo "${{ toJSON(github.event) }}"
 
   log_creation:
+    # 作成イベントの時、かつ作成されたのが「ブランチ」である場合のみ実行
+    if: github.event_name == 'create' && github.event.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
-      - name: Debug GitHub Context (Creation)
-        run: echo "${{ toJSON(github) }}"
       - name: Log created branch name
         run: |
           echo "ブランチが作成されました。"
-          echo "作成されたブランチ名: ${{ github.event.ref_name }}"
+          echo "作成されたブランチ名: ${{ github.event.ref }}"
           echo "作成を実行したユーザー: ${{ github.actor }}"
-          echo "イベントのペイロード全文:"
-          echo "${{ toJSON(github.event) }}"
-      - name: Debug GitHub Context (Trigger Check)
-        run: echo "${{ toJSON(github.event) }}"
