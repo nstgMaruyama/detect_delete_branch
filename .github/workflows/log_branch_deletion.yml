@@ -1,0 +1,30 @@
+name: Log Branch Deletion and Creation
+
+on:
+  delete:
+    types: [branch]
+  create:
+    types: [branch]
+
+jobs:
+  log_deletion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log deleted branch name
+        run: |
+          echo "ブランチが削除されました。"
+          echo "削除されたブランチ名: ${{ github.event.ref_name }}"
+          echo "削除を実行したユーザー: ${{ github.actor }}"
+          echo "イベントのペイロード全文:"
+          echo "${{ toJSON(github.event) }}"
+
+  log_creation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log created branch name
+        run: |
+          echo "ブランチが作成されました。"
+          echo "作成されたブランチ名: ${{ github.event.ref_name }}"
+          echo "作成を実行したユーザー: ${{ github.actor }}"
+          echo "イベントのペイロード全文:"
+          echo "${{ toJSON(github.event) }}"
