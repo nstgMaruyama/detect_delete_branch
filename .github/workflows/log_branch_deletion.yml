@@ -11,6 +11,8 @@ jobs:
   log_deletion:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug GitHub Context (Deletion)
+        run: echo "${{ toJSON(github) }}"
       - name: Log deleted branch name
         run: |
           echo "ブランチが削除されました。"
@@ -22,6 +24,8 @@ jobs:
   log_creation:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug GitHub Context (Creation)
+        run: echo "${{ toJSON(github) }}"
       - name: Log created branch name
         run: |
           echo "ブランチが作成されました。"
