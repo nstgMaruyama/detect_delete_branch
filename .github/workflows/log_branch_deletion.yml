@@ -20,6 +20,8 @@ jobs:
           echo "削除を実行したユーザー: ${{ github.actor }}"
           echo "イベントのペイロード全文:"
           echo "${{ toJSON(github.event) }}"
+      - name: Debug GitHub Context (Trigger Check)
+        run: echo "${{ toJSON(github.event) }}"
 
   log_creation:
     runs-on: ubuntu-latest
@@ -33,3 +35,5 @@ jobs:
           echo "作成を実行したユーザー: ${{ github.actor }}"
           echo "イベントのペイロード全文:"
           echo "${{ toJSON(github.event) }}"
+      - name: Debug GitHub Context (Trigger Check)
+        run: echo "${{ toJSON(github.event) }}"
